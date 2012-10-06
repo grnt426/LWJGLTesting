@@ -5,14 +5,14 @@ import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-import java.util.Random;
-
 import static org.lwjgl.opengl.GL11.*;
 
 public class DisplayExample {
 
 	private float frames = 0f;
 	private long lastTime = 0;
+	private int fps = 0;
+	private long lastFPS;
 
 	public static void main(String[] args) {
 		DisplayExample d = new DisplayExample();
@@ -38,14 +38,15 @@ public class DisplayExample {
 
 
 		float time = 0f;
-
 		float initXVelocity = 50f;
 		float initYVelocity = 75f;
 		float gravity = -9.8f;
 
+		lastFPS = getTime();
+
 		while (!Display.isCloseRequested()) {
+
 			float posTime = time / 1000f;
-			System.out.println("Time: " + time + "ms (" + posTime +"s), Frame: " + frames);
 
 			// Clear the screen
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -65,6 +66,7 @@ public class DisplayExample {
 						y + ((float) Math.cos(angle) * radius));
 			}
 			glEnd();
+			updateFPS();
 
 			Display.update();
 			Display.sync(60);
@@ -80,16 +82,28 @@ public class DisplayExample {
 	}
 
 	private int getDelta() {
-	    long time = getTime();
-	    int delta = (int) (time - lastTime);
-	    lastTime = time;
+		long time = getTime();
+		int delta = (int) (time - lastTime);
+		lastTime = time;
 
 		if(delta > 1000)
 			return 1000;
-	    return delta;
+		return delta;
 	}
 
 	private long getTime() {
-	    return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+	}
+
+	/**
+	 * Calculate the FPS and set it in the title bar
+	 */
+	public void updateFPS() {
+		if (getTime() - lastFPS > 1000) {
+			Display.setTitle("FPS: " + fps);
+			fps = 0;
+			lastFPS += 1000;
+		}
+		fps++;
 	}
 }
