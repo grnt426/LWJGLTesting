@@ -10,4 +10,5 @@ mvn install
 
 Executing
 ---------
-java -jar -Djava.library.path=target/natives target/DisplayExample.jar
+The natives/ directory must be at the same level as the jar
+java -jar DisplayExample.jar
