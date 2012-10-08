@@ -5,6 +5,9 @@ import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class DisplayExample {
@@ -14,9 +17,24 @@ public class DisplayExample {
 	private int fps = 0;
 	private long lastFPS;
 
+	List<Actor> actors;
+
 	public static void main(String[] args) {
+		Time.createTime();
 		DisplayExample d = new DisplayExample();
+		d.createActors(5);
 		d.start();
+	}
+
+	private void createActors(int i) {
+
+		if(actors == null)
+			actors = new ArrayList<Actor>();
+
+		while(i > 0){
+			i--;
+			actors.add(new Actor());
+		}
 	}
 
 	private void start() {
@@ -36,70 +54,45 @@ public class DisplayExample {
 		glDisable(GL_DEPTH_TEST); // Disable the depth buffer
 		glTranslatef(0.375f, 0.375f, 0);
 
+		// Necessary for computing accurate FPS data as startup times cause
+		// the initial read to be incorrect
+		lastFPS = Time.getTime();
 
-		float time = 0f;
-		float initXVelocity = 50f;
-		float initYVelocity = 75f;
-		float gravity = -9.8f;
-
-		lastFPS = getTime();
-
+		// Main render loop for handling all draw activity
 		while (!Display.isCloseRequested()) {
-
-			float posTime = time / 1000f;
 
 			// Clear the screen
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			// I want blue
-			glColor3f(0.5f, 0.5f, 1.0f);
+			// We need some peeps to fill this screen!
+			drawActors();
 
-			// Draw the projectile
-			glBegin(GL_TRIANGLE_FAN);
-			float x = initXVelocity * posTime;
-			float y = (float) ((initYVelocity * posTime) +
-					(0.5f) * gravity * Math.pow(posTime, 2));
-			float radius = 10;
-			glVertex2f(x, y);
-			for (float angle = 0; angle < 360; angle += 1) {
-				glVertex2f(x + ((float) Math.sin(angle) * radius),
-						y + ((float) Math.cos(angle) * radius));
-			}
-			glEnd();
+			// Need to keep that counter relevant
 			updateFPS();
 
+			// handle all the timing stuff
 			Display.update();
 			Display.sync(60);
 			frames++;
-			time += getDelta();
+			Time.updateTime();
 		}
 
+		// Clean up everything to avoid memory leaks
 		Display.destroy();
 	}
 
-	public DisplayExample() {
-
-	}
-
-	private int getDelta() {
-		long time = getTime();
-		int delta = (int) (time - lastTime);
-		lastTime = time;
-
-		if(delta > 1000)
-			return 1000;
-		return delta;
-	}
-
-	private long getTime() {
-		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+	private void drawActors() {
+		for(Actor a : actors){
+			a.updatePhysics(); // maybe make separate?
+			a.drawSelf();
+		}
 	}
 
 	/**
 	 * Calculate the FPS and set it in the title bar
 	 */
 	public void updateFPS() {
-		if (getTime() - lastFPS > 1000) {
+		if (Time.getTime() - lastFPS > 1000) {
 			Display.setTitle("FPS: " + fps);
 			fps = 0;
 			lastFPS += 1000;
