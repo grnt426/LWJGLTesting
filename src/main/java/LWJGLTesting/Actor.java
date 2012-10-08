@@ -16,6 +16,14 @@ public class Actor implements Drawable, Mass {
 	private float y;
 
 	/*
+	 * To draw a circle efficiently we will store a buffer of all the
+	 * vertex positions of a circle.  To achieve a circle of a given radius,
+	 * multiply each value by the radius, and then add the desired amount
+	 * to shift the circle to the correct position.
+	 */
+	private static float[][] CIRCLE_OBJECT;
+
+	/*
 	 * Kinematic Data
 	 */
 	private float xVelocity;
@@ -26,23 +34,42 @@ public class Actor implements Drawable, Mass {
 	 * Aesthetic Data
 	 */
 	private float[] color;
+	private float radius;
 
-	Random generator;
+	private static Random generator = new Random();
 
 	public Actor() {
 		x = 0f;
 		y = 0f;
-		generator = new Random();
 
 		// We don't care what the initial velocity is so long as it is positive
-		xVelocity = generator.nextInt(100) + 1;
-		yVelocity = generator.nextInt(100) + 2;
+		xVelocity = generator.nextInt(100) + 2;
+		yVelocity = generator.nextInt(100) + 5;
 
 		// Likewise, we don't care about the initial color so long as it is not
 		// black (for then it would be invisible against the background)
 		color = new float[3];
 		for (int i = 0; i < color.length; i++) {
 			color[i] = generator.nextFloat();
+		}
+
+		// Our radius can be any positive, non-zero, integer value
+		radius = generator.nextInt(20) + 1;
+
+		createCircleData();
+	}
+
+	private void createCircleData() {
+		if(CIRCLE_OBJECT != null)
+			return;
+		CIRCLE_OBJECT = new float[2][360];
+		for(int dims = 0; dims < 2; dims++){
+			for(int angle = 0; angle < 360; angle+=5){
+				if(dims == 0)
+					CIRCLE_OBJECT[dims][angle] = (float) Math.sin(angle);
+				else
+					CIRCLE_OBJECT[dims][angle] = (float) Math.cos(angle);
+			}
 		}
 	}
 
@@ -54,11 +81,10 @@ public class Actor implements Drawable, Mass {
 
 		// Draw the projectile
 		glBegin(GL_TRIANGLE_FAN);
-		float radius = 10;
 		glVertex2f(x, y);
-		for (float angle = 0; angle < 360; angle += 1) {
-			glVertex2f(x + ((float) Math.sin(angle) * radius),
-					y + ((float) Math.cos(angle) * radius));
+		for (int angle = 0; angle < 360; angle+=5) {
+			glVertex2f(x + (CIRCLE_OBJECT[0][angle]  * radius),
+					y + (CIRCLE_OBJECT[1][angle] * radius));
 		}
 		glEnd();
 	}

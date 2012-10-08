@@ -22,7 +22,7 @@ public class DisplayExample {
 	public static void main(String[] args) {
 		Time.createTime();
 		DisplayExample d = new DisplayExample();
-		d.createActors(5);
+		d.createActors(1000);
 		d.start();
 	}
 
