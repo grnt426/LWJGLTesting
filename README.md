@@ -10,4 +10,4 @@ mvn install
 
 Executing
 ---------
-java -jar -Djava.library.path=target/natives target/DisplayExample.jar
+java -jar target/DisplayExample.jar

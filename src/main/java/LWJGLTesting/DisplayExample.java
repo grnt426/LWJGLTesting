@@ -5,6 +5,7 @@ import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,14 @@ public class DisplayExample {
 	List<Actor> actors;
 
 	public static void main(String[] args) {
+
+		// We need to load our natives for OpenGL to work.  They should be
+		// right here next to us.
+		System.setProperty("org.lwjgl.librarypath",
+				System.getProperty("user.dir") +
+					System.getProperty("file.separator") + "natives");
+
+		System.out.println("Launching!");
 		Time.createTime();
 		DisplayExample d = new DisplayExample();
 		d.createActors(1000);
