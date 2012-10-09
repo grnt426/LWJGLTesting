@@ -1,5 +1,6 @@
 package LWJGLTesting;
 
+import LWJGLTesting.Graphics.Actor;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;

@@ -1,4 +1,8 @@
-package LWJGLTesting;
+package LWJGLTesting.Graphics;
+
+import LWJGLTesting.Graphics.Drawable;
+import LWJGLTesting.Mass;
+import LWJGLTesting.Time;
 
 import java.util.Random;
 

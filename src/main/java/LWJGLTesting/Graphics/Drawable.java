@@ -1,4 +1,4 @@
-package LWJGLTesting;
+package LWJGLTesting.Graphics;
 
 /**
  * Author:      Grant Kurtz
