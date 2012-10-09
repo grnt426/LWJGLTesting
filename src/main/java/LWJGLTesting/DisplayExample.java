@@ -24,10 +24,11 @@ public class DisplayExample {
 
 		// We need to load our natives for OpenGL to work.  They should be
 		// right here next to us.
+		System.out.print("Loading LWJGL Natives...");
 		System.setProperty("org.lwjgl.librarypath",
 				System.getProperty("user.dir") +
-					System.getProperty("file.separator") + "natives");
-
+						System.getProperty("file.separator") + "natives");
+		System.out.println("Done");
 		System.out.println("Launching!");
 		Time.createTime();
 		DisplayExample d = new DisplayExample();
@@ -80,8 +81,8 @@ public class DisplayExample {
 			updateFPS();
 
 			// handle all the timing stuff
-			Display.update();
 			Display.sync(60);
+			Display.update();
 			frames++;
 			Time.updateTime();
 		}
