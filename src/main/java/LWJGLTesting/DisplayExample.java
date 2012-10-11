@@ -10,13 +10,15 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class DisplayExample {
 
@@ -159,71 +161,56 @@ public class DisplayExample {
 	public void setupQuad() {
 
 		float[] vertices = {
-				0.75f, 0.75f, 0f, 1f,
-				0.75f, -0.75f, 0f, 1f,
-				-0.75f, -0.75f, 0f, 1f
+				0.0f, 0.5f, 0.0f, 1.0f,
+				0.5f, -0.366f, 0.0f, 1.0f,
+				-0.5f, -0.366f, 0.0f, 1.0f,
+				1.0f, 0.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 0.0f, 1.0f,
+				0.0f, 0.0f, 1.0f, 1.0f,
 		};
 		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length);
 		verticesBuffer.put(vertices);
 		verticesBuffer.flip();
 
-//		float[] colors = {
-//				1f, 0f, 0f, 1f,
-//				0f, 1f, 0f, 1f,
-//				0f, 0f, 1f, 1f,
-//				1f, 1f, 1f, 1f,
-//		};
-//		FloatBuffer colorsBuffer = BufferUtils.createFloatBuffer(colors.length);
-//		colorsBuffer.put(colors);
-//		colorsBuffer.flip();
-
-		// Create a new Vertex Array Object in memory and select it (bind)
-		vaoId = GL30.glGenVertexArrays();
-		GL30.glBindVertexArray(vaoId);
-
 		// Create a new Vertex Buffer Object in memory and select it (bind) - VERTICES
 		vboId = GL15.glGenBuffers();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
-		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, 0, 0);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
-		// Create a new VBO for the indices and select it (bind) - COLORS
-//		vbocId = GL15.glGenBuffers();
-//		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbocId);
-//		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, colorsBuffer, GL15.GL_STATIC_DRAW);
-//		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, 0, 0);
-//		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
+		glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
+		glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
 		// Deselect (bind to 0) the VAO
-		GL30.glBindVertexArray(0);
+		glBindVertexArray(0);
+
+		exitOnGLError("sdfjdklsjf");
 	}
 
 	public void loopCycle() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-//		GL20.glUseProgram(pId);
-
-		// Bind to the VAO that has all the information about the quad vertices
-		GL30.glBindVertexArray(vaoId);
-		GL20.glEnableVertexAttribArray(0);
+		glUseProgram(pId);
 
 		// Bind to the index VBO that has all the information about the order of the vertices
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 48);
 
 		// Draw the vertices
-		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
 
 		// Put everything back to default (deselect)
 //		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		GL20.glDisableVertexAttribArray(0);
-		GL30.glBindVertexArray(0);
-//		GL20.glUseProgram(0);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glUseProgram(0);
+
+		exitOnGLError("sdfjdklsjf");
 	}
 
 	public void destroyOpenGL() {
 		// Delete the shaders
-		GL20.glUseProgram(0);
+		glUseProgram(0);
 		GL20.glDetachShader(pId, vsId);
 		GL20.glDetachShader(pId, fsId);
 
@@ -232,26 +219,26 @@ public class DisplayExample {
 		GL20.glDeleteProgram(pId);
 
 		// Select the VAO
-		GL30.glBindVertexArray(vaoId);
+		glBindVertexArray(vaoId);
 
 		// Disable the VBO index from the VAO attributes list
-		GL20.glDisableVertexAttribArray(0);
-		GL20.glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 
 		// Delete the vertex VBO
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL15.glDeleteBuffers(vboId);
 
 		// Delete the color VBO
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL15.glDeleteBuffers(vbocId);
 
 		// Delete the index VBO
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL15.glDeleteBuffers(vboiId);
 
 		// Delete the VAO
-		GL30.glBindVertexArray(0);
+		glBindVertexArray(0);
 		GL30.glDeleteVertexArrays(vaoId);
 
 		Display.destroy();
@@ -284,6 +271,8 @@ public class DisplayExample {
 		shaderID = GL20.glCreateShader(type);
 		GL20.glShaderSource(shaderID, shaderSource);
 		GL20.glCompileShader(shaderID);
+
+		exitOnGLError("sdfjdklsjf");
 
 		return shaderID;
 	}
@@ -318,11 +307,25 @@ public class DisplayExample {
 			System.exit(-1);
 		}
 
+		exitOnGLError("sdfjdklsjf");
+
 		// We don't need to create more programs from the shaders we loaded,
 		// so we can free them
 //		GL20.glDetachShader(pId, vsId);
 //		GL20.glDeleteShader(vsId);
 //		GL20.glDetachShader(pId, fsId);
 //		GL20.glDeleteShader(fsId);
+	}
+
+	public void exitOnGLError(String errorMessage) {
+		int errorValue = GL11.glGetError();
+
+		if (errorValue != GL11.GL_NO_ERROR) {
+			String errorString = GLU.gluErrorString(errorValue);
+			System.err.println("ERROR - " + errorMessage + ": " + errorString);
+
+			if (Display.isCreated()) Display.destroy();
+			System.exit(-1);
+		}
 	}
 }
