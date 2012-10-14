@@ -49,6 +49,8 @@ public class DisplayExample {
 	private int vbocId;
 	private int vboiId;
 
+	private int START_TIME;
+
 	/*
 	 * To draw a circle efficiently we will store a buffer of all the
 	 * vertex positions of a circle.  To achieve a circle of a given radius,
@@ -56,6 +58,8 @@ public class DisplayExample {
 	 * to shift the circle to the correct position.
 	 */
 	private static float[][] CIRCLE_OBJECT;
+	private int uniformTimeLoc;
+	private boolean notFirst = true;
 
 	public static void main(String[] args) {
 
@@ -95,6 +99,8 @@ public class DisplayExample {
 
 		setupQuad();
 		setupShaders();
+		uniformTimeLoc = glGetUniformLocation(pId, "time");
+		START_TIME = Time.getMilliseconds() / 1000;
 
 		// Main render loop for handling all draw activity
 		while (!Display.isCloseRequested()) {
@@ -168,24 +174,17 @@ public class DisplayExample {
 
 	public void setupQuad() {
 
-		float[] vertices = {
-				0.0f, 0.5f, 0.0f, 1.0f,
-				0.5f, -0.366f, 0.0f, 1.0f,
-				-0.5f, -0.366f, 0.0f, 1.0f
-		};
-
 		float[] circle = new float[360*4+4];
-		float radius = 30;
 		int counter = 4; // TODO: fix this later
 		createCircleData();
-		circle[0] = 0f;
-		circle[1] = 0f;
+		circle[0] = -1.0f;
+		circle[1] = -1.0f;
 		circle[2] = 0f;
 		circle[3] = 1.0f;
 
 		for (int angle = 0; angle < 360; angle+=1) {
-			circle[counter] = CIRCLE_OBJECT[0][angle] * .08f; // X
-			circle[counter + 1] = CIRCLE_OBJECT[1][angle] * .08f; // Y
+			circle[counter] = CIRCLE_OBJECT[0][angle] * .08f + -1.0f; // X
+			circle[counter + 1] = CIRCLE_OBJECT[1][angle] * .08f + -1.0f; // Y
 			circle[counter + 2] = 0.0f; // Z
 			circle[counter + 3] = 1.0f; // W
 			counter += 4;
@@ -213,6 +212,9 @@ public class DisplayExample {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(pId);
+
+		float timeDiff = Time.getMilliseconds() / 1000.0f - START_TIME;
+		glUniform1f(uniformTimeLoc, timeDiff);
 
 		// Bind to the index VBO that has all the information about the order of the vertices
 		glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
@@ -354,15 +356,13 @@ public class DisplayExample {
 	private void createCircleData() {
 		if(CIRCLE_OBJECT != null)
 			return;
-		CIRCLE_OBJECT = new float[2][361];
-		CIRCLE_OBJECT[0][0] = 0f;
-		CIRCLE_OBJECT[1][0] = 0f;
+		CIRCLE_OBJECT = new float[2][360];
 		for(int dims = 0; dims < 2; dims++){
 			for(int angle = 0; angle < 360; angle+=1){
 				if(dims == 1)
-					CIRCLE_OBJECT[dims][angle+1] = (float) Math.sin(angle);
+					CIRCLE_OBJECT[dims][angle] = (float) Math.sin(angle);
 				else
-					CIRCLE_OBJECT[dims][angle+1] = (float) Math.cos(angle);
+					CIRCLE_OBJECT[dims][angle] = (float) Math.cos(angle);
 			}
 		}
 	}
