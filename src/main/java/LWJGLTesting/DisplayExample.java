@@ -49,6 +49,14 @@ public class DisplayExample {
 	private int vbocId;
 	private int vboiId;
 
+	/*
+	 * To draw a circle efficiently we will store a buffer of all the
+	 * vertex positions of a circle.  To achieve a circle of a given radius,
+	 * multiply each value by the radius, and then add the desired amount
+	 * to shift the circle to the correct position.
+	 */
+	private static float[][] CIRCLE_OBJECT;
+
 	public static void main(String[] args) {
 
 		// We need to load our natives for OpenGL to work.  They should be
@@ -163,13 +171,26 @@ public class DisplayExample {
 		float[] vertices = {
 				0.0f, 0.5f, 0.0f, 1.0f,
 				0.5f, -0.366f, 0.0f, 1.0f,
-				-0.5f, -0.366f, 0.0f, 1.0f,
-				1.0f, 0.0f, 0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 1.0f, 1.0f,
+				-0.5f, -0.366f, 0.0f, 1.0f
 		};
-		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length);
-		verticesBuffer.put(vertices);
+
+		float[] circle = new float[360/5*4];
+		float radius = 30;
+		int counter = 0; // TODO: fix this later
+		createCircleData();
+
+		for (int angle = 0; angle < 360; angle+=5) {
+			circle[counter] = CIRCLE_OBJECT[0][angle] * .1f; // X
+			circle[counter + 1] = CIRCLE_OBJECT[1][angle] * .1f; // Y
+			circle[counter + 2] = 0.0f; // Z
+			circle[counter + 3] = 1.0f; // W
+			counter += 4;
+		}
+
+		System.out.println("CIRCLE VERTICES: " + circle.length);
+
+		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(circle.length);
+		verticesBuffer.put(circle);
 		verticesBuffer.flip();
 
 		// Create a new Vertex Buffer Object in memory and select it (bind) - VERTICES
@@ -192,17 +213,14 @@ public class DisplayExample {
 		// Bind to the index VBO that has all the information about the order of the vertices
 		glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 48);
 
 		// Draw the vertices
-		glDrawArrays(GL11.GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL11.GL_TRIANGLES, 0, 360/5);
 
 		// Put everything back to default (deselect)
 //		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
 		glUseProgram(0);
 
 		exitOnGLError("sdfjdklsjf");
@@ -326,6 +344,20 @@ public class DisplayExample {
 
 			if (Display.isCreated()) Display.destroy();
 			System.exit(-1);
+		}
+	}
+
+	private void createCircleData() {
+		if(CIRCLE_OBJECT != null)
+			return;
+		CIRCLE_OBJECT = new float[2][360];
+		for(int dims = 0; dims < 2; dims++){
+			for(int angle = 0; angle < 360; angle+=5){
+				if(dims == 0)
+					CIRCLE_OBJECT[dims][angle] = (float) Math.sin(angle);
+				else
+					CIRCLE_OBJECT[dims][angle] = (float) Math.cos(angle);
+			}
 		}
 	}
 }
