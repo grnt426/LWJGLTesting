@@ -32,7 +32,7 @@ public class DisplayExample {
 	 * Window Data
 	 */
 	private final int WIDTH = 800;
-	private final int HEIGHT = 600;
+	private final int HEIGHT = 800;
 
 	List<Actor> actors;
 
@@ -174,14 +174,18 @@ public class DisplayExample {
 				-0.5f, -0.366f, 0.0f, 1.0f
 		};
 
-		float[] circle = new float[360/5*4];
+		float[] circle = new float[360*4+4];
 		float radius = 30;
-		int counter = 0; // TODO: fix this later
+		int counter = 4; // TODO: fix this later
 		createCircleData();
+		circle[0] = 0f;
+		circle[1] = 0f;
+		circle[2] = 0f;
+		circle[3] = 1.0f;
 
-		for (int angle = 0; angle < 360; angle+=5) {
-			circle[counter] = CIRCLE_OBJECT[0][angle] * .1f; // X
-			circle[counter + 1] = CIRCLE_OBJECT[1][angle] * .1f; // Y
+		for (int angle = 0; angle < 360; angle+=1) {
+			circle[counter] = CIRCLE_OBJECT[0][angle] * .08f; // X
+			circle[counter + 1] = CIRCLE_OBJECT[1][angle] * .08f; // Y
 			circle[counter + 2] = 0.0f; // Z
 			circle[counter + 3] = 1.0f; // W
 			counter += 4;
@@ -216,7 +220,7 @@ public class DisplayExample {
 		glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
 
 		// Draw the vertices
-		glDrawArrays(GL11.GL_TRIANGLES, 0, 360/5);
+		glDrawArrays(GL11.GL_TRIANGLE_FAN, 0, 361);
 
 		// Put everything back to default (deselect)
 //		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -350,13 +354,15 @@ public class DisplayExample {
 	private void createCircleData() {
 		if(CIRCLE_OBJECT != null)
 			return;
-		CIRCLE_OBJECT = new float[2][360];
+		CIRCLE_OBJECT = new float[2][361];
+		CIRCLE_OBJECT[0][0] = 0f;
+		CIRCLE_OBJECT[1][0] = 0f;
 		for(int dims = 0; dims < 2; dims++){
-			for(int angle = 0; angle < 360; angle+=5){
-				if(dims == 0)
-					CIRCLE_OBJECT[dims][angle] = (float) Math.sin(angle);
+			for(int angle = 0; angle < 360; angle+=1){
+				if(dims == 1)
+					CIRCLE_OBJECT[dims][angle+1] = (float) Math.sin(angle);
 				else
-					CIRCLE_OBJECT[dims][angle] = (float) Math.cos(angle);
+					CIRCLE_OBJECT[dims][angle+1] = (float) Math.cos(angle);
 			}
 		}
 	}
