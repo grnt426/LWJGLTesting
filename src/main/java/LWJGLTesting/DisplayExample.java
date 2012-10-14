@@ -60,6 +60,8 @@ public class DisplayExample {
 	private static float[][] CIRCLE_OBJECT;
 	private int uniformTimeLoc;
 	private boolean notFirst = true;
+	private int uniformHeightLoc;
+	private int uniformWidthLoc;
 
 	public static void main(String[] args) {
 
@@ -100,6 +102,8 @@ public class DisplayExample {
 		setupQuad();
 		setupShaders();
 		uniformTimeLoc = glGetUniformLocation(pId, "time");
+		uniformHeightLoc = glGetUniformLocation(pId, "height");
+		uniformWidthLoc = glGetUniformLocation(pId, "width");
 		START_TIME = Time.getMilliseconds() / 1000;
 
 		// Main render loop for handling all draw activity
@@ -215,6 +219,8 @@ public class DisplayExample {
 
 		float timeDiff = Time.getMilliseconds() / 1000.0f - START_TIME;
 		glUniform1f(uniformTimeLoc, timeDiff);
+		glUniform1f(uniformHeightLoc, HEIGHT);
+		glUniform1f(uniformWidthLoc, WIDTH);
 
 		// Bind to the index VBO that has all the information about the order of the vertices
 		glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
